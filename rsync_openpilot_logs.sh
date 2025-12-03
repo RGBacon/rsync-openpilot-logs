@@ -28,22 +28,8 @@ rsync -rtW --info=progress2 \
     "${SSH_USER}@${DEVICE_IP}:${REMOTE_PATH}" \
     "${LOCAL_PATH}/"
 
-# Decompress to logs folder
-echo ""
-echo "Decompressing logs..."
-
-mkdir -p "${LOCAL_PATH}/logs"
-
-find "${LOCAL_PATH}" -mindepth 2 -name "rlog.zst" | while read -r f; do
-    folder=$(basename "$(dirname "$f")")
-    out="${LOCAL_PATH}/logs/${folder}-rlog"
-    
-    # Skip if already decompressed
-    [[ -f "$out" ]] && continue
-    
-    echo "  $folder"
-    zstd -d -q -f "$f" -o "$out"
-done
+# Create hard symlink so logs/ points to the synced data
+ln -sfn . "${LOCAL_PATH}/logs" 2>/dev/null || true
 
 echo ""
-echo "Done! Logs in: ${LOCAL_PATH}/logs"
+echo "Done! Logs in: ${LOCAL_PATH}"

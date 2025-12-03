@@ -5,14 +5,12 @@ A simple bash script to sync and decompress rlog files from a Comma device runni
 ## Features
 
 - Syncs only `rlog.zst` files via rsync over SSH
-- Automatically decompresses logs using zstd
-- Skips already decompressed files
 - Shows progress during transfer
+- Creates a `logs/` symlink for easy access
 
 ## Requirements
 
 - `rsync`
-- `zstd`
 - SSH key configured for your Comma device
 
 ## Configuration
@@ -34,7 +32,7 @@ LOCAL_PATH="./openpilot_logs"  # Local destination
 ./rsync_openpilot_logs.sh
 ```
 
-Logs will be synced and decompressed to `./openpilot_logs/logs/`.
+Logs will be synced to `./openpilot_logs/`.
 
 ## License
 
