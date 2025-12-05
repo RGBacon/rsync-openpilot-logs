@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Sync rlog files from Comma device and decompress them
+# Sync rlog files from Comma device
 #
 
 set -euo pipefail
@@ -17,19 +17,18 @@ LOCAL_PATH="./openpilot_logs"
 
 echo "Syncing rlogs from ${DEVICE_IP}..."
 
-# Sync only rlog.zst files
-rsync -rtW --info=progress2 \
-    --update \
+# Sync only rlog.zst files with optimized settings for speed
+rsync -rt --info=progress2 \
+    --ignore-existing \
+    --partial \
+    --inplace \
     --include="*/" \
     --include="rlog.zst" \
     --exclude="*" \
     --prune-empty-dirs \
-    -e "ssh -p ${SSH_PORT} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o Compression=no -c aes128-gcm@openssh.com" \
+    -e "ssh -p ${SSH_PORT} -i ${SSH_KEY} -o StrictHostKeyChecking=no -o Compression=no -o ConnectTimeout=10 -o ControlMaster=auto -o ControlPath=~/.ssh/control-%h-%p-%r -o ControlPersist=10 -c aes128-gcm@openssh.com" \
     "${SSH_USER}@${DEVICE_IP}:${REMOTE_PATH}" \
     "${LOCAL_PATH}/"
-
-# Create hard symlink so logs/ points to the synced data
-ln -sfn . "${LOCAL_PATH}/logs" 2>/dev/null || true
 
 echo ""
 echo "Done! Logs in: ${LOCAL_PATH}"
